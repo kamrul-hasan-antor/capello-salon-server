@@ -30,6 +30,10 @@ client.connect((err) => {
     .db(`${process.env.DB_NAME}`)
     .collection("reviews");
 
+  const adminCollection = client
+    .db(`${process.env.DB_NAME}`)
+    .collection("admin");
+
   app.get("/services", (req, res) => {
     serviceCollection.find().toArray((err, items) => {
       res.send(items);
@@ -84,9 +88,23 @@ client.connect((err) => {
       res.send(items);
     });
   });
+
+  app.post("/addAdmin", (req, res) => {
+    const data = req.body;
+    adminCollection.insertOne(data).then((result) => {
+      res.send(result.insertedCount > 0);
+    });
+  });
+
+  app.post("/isAdmin", (req, res) => {
+    const email = req.body.email;
+    adminCollection.find({ email: email }).toArray((error, result) => {
+      res.send(result.length > 0);
+    });
+  });
 });
 
 app.get("/", (req, res) => {
-  res.send("hello world");
+  res.send("Welcome to Cappiello Salon Server");
 });
-app.listen(port);
+app.listen(process.env.PORT || 5000);
