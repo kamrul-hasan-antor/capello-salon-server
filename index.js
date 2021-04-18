@@ -20,13 +20,15 @@ const client = new MongoClient(uri, {
 client.connect((err) => {
   const serviceCollection = client
     .db(`${process.env.DB_NAME}`)
-    .collection(`${process.env.DB_COLLECTION}`);
+    .collection("services");
 
   const serviceOrderedCollection = client
     .db(`${process.env.DB_NAME}`)
     .collection("user");
 
-  // client.close();
+  const reviewCollection = client
+    .db(`${process.env.DB_NAME}`)
+    .collection("reviews");
 
   app.get("/services", (req, res) => {
     serviceCollection.find().toArray((err, items) => {
@@ -58,15 +60,27 @@ client.connect((err) => {
       });
   });
 
-  app.post("/addOrders", (req, res) => {
-    const newOrders = req.body;
-    serviceOrderedCollection.insertOne(newOrders).then((result) => {
+  app.post("/addBooking", (req, res) => {
+    const newBooking = req.body;
+    serviceOrderedCollection.insertOne(newBooking).then((result) => {
       res.send(result.insertedCount > 0);
     });
   });
 
-  app.get("/orders", (req, res) => {
+  app.get("/booking", (req, res) => {
     serviceOrderedCollection.find().toArray((err, items) => {
+      res.send(items);
+    });
+  });
+
+  app.post("/addReview", (req, res) => {
+    const newReview = req.body;
+    reviewCollection.insertOne(newReview).then((result) => {
+      res.send(result.insertedCount > 0);
+    });
+  });
+  app.get("/review", (req, res) => {
+    reviewCollection.find().toArray((err, items) => {
       res.send(items);
     });
   });
